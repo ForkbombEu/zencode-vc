@@ -15,5 +15,9 @@ jobs:
         with:
           install: true
           cache: true
-      - run: |
+      - name: slangroom tests
+        run: |
           make check
+      - name: W3C VC journey
+        run: |
+          make

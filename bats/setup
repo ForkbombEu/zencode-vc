@@ -2,27 +2,40 @@ TMP="$BATS_TEST_TMPDIR"
 T="$BATS_TEST_DIRNAME"
 # root where slangroom starts searching for files
 export FILES_DIR="$T"
+export SRC="${T}/src"
+mkdir -p "$SRC"
 load bats/test_helper/bats_support/load
 load bats/test_helper/bats_assert/load
 load bats/test_helper/bats_file/load
 function _out() {     printf "$*\n"; }
 function _err() { >&2 printf "$*\n"; }
-
 slexe() {
-        [ -r bin/slexfe ] || {
-          _err "Error: bin/slexfe not found."
-          exit 1
-        }
-        command -v slangroom-exec > /dev/null || {
-          _err "Error: slangroom-exec not found."
-          exit 1
-        }
-        [ -r "${1}.slang" ] || {
-          _err "Error: script not found: $1"
-          exit 1
-        }
-        # run bats_pipe bash bin/slexfe -F $1 \| bin/slangroom-exec
-        bash bin/slexfe -F $1 | bin/slangroom-exec \
-             1>$TMP/out 2> >(tee $TMP/err >&2)
-        export output=`cat $TMP/out`
+  set +e
+  [ -r bin/slexfe ] || {
+    _err "Error: bin/slexfe not found."
+    exit 1
+  }
+  command -v slangroom-exec > /dev/null || {
+    _err "Error: slangroom-exec not found."
+    exit 1
+  }
+  [ -r "${1}.slang" ] || {
+    _err "Error: script not found: $1"
+    exit 1
+  }
+  # run bats_pipe bash bin/slexfe -F $1 \| bin/slangroom-exec
+  bash bin/slexfe -F $1 | bin/slangroom-exec \
+                            1>$TMP/out 2> >(tee $TMP/err >&2)
+  local res=$?
+  export output=`cat $TMP/out`
+  [ "$res" != 0 ] && {
+    >&2 echo "TRACE:"
+    awk '/J64 TRACE/ {print $3}' $TMP/err | \
+      cut -d\" -f1 | base64 -d | jq .
+    >&2 echo "HEAP:"
+    awk '/J64 HEAP/ {print $3}' $TMP/err | \
+      cut -d\" -f1 | base64 -d | jq .
+    exit 1
+  }
+  set -e
 }

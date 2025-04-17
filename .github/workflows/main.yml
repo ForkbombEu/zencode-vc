@@ -17,6 +17,7 @@ jobs:
           cache: true
       - name: slangroom tests
         run: |
+          ln -s `mise which slangroom-exec` bin/slangroom-exec
           make check
       - name: W3C VC journey
         run: |

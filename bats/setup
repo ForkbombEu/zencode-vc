@@ -39,7 +39,7 @@ slexe() {
     exit 1
   }
   [ "$output" == "" ] && {
-    _err "Output is missing, no result from previous computation" | tee -a
+    _err "Output is missing, no result from previous computation" | tee -a $TMP/err
     exit 1
   }
   rm -f "${1}.out.json"
@@ -51,10 +51,27 @@ slexe() {
 save_output() {
   filename="$1"
   [ "$output" == "" ] && {
-    _err "Output is missing, no result from previous computation" | tee -a
+    _err "Output is missing, no result from previous computation" | tee -a $TMP/err
     exit 1
   }
   rm -f "${1}"
   echo "$output" > "${1}"
   >&3 echo " 💾 > `basename $1`"
+}
+
+prepare() {
+  [ -r "$2" ] || {
+    _err "Input file not found: $1" | tee -a $TMP/err
+    exit 1
+  }
+  [ "$contract" == "" ] && {
+    _err "Prepare error: contract unknown" | tee -a $TMP/err
+    exit 1
+  }
+  ft="data"
+  [ "$1" == "" ] || {
+    ft="$1"
+  }
+  rm -f "${contract}.${ft}.json"
+  ln -s "$2" "${contract}.${ft}.json"
 }

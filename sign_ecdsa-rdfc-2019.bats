@@ -45,8 +45,9 @@ EOF
 }
 
 @test "Create the rdf-canon objects" {
-  ln -sf $SRC/unsecuredDocument.data.json $SRC/rdf-canon-objects.data.json
-  ln -sf $SRC/keyring.out.json $SRC/rdf-canon-objects.keys.json
+  export contract=rdf-canon-objects
+  prepare data $SRC/unsecuredDocument.data.json
+  prepare keys $SRC/keyring.out.json
   cat <<EOF > $SRC/rdf-canon-objects.slang
 rule unknown ignore
 Given I have a 'string dictionary' named 'unsecuredDocument'
@@ -102,8 +103,9 @@ EOF
 #     "document_w3c_hash": "517744132ae165a5349155bef0bb0cf2258fff99dfe1dbd914b938d775a36017"
 #   }
 # EOF
-  ln -sf $SRC/rdf-canon-objects.out.json $SRC/hash-and-sign.data.json
-  ln -sf $SRC/keyring.out.json $SRC/hash-and-sign.keys.json
+  export contract="hash-and-sign"
+  prepare data $SRC/rdf-canon-objects.out.json
+  prepare keys $SRC/keyring.out.json
   cat <<EOF > $SRC/hash-and-sign.slang
 Scenario es256
 Given I have a 'keyring'

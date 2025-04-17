@@ -18,7 +18,10 @@ Then I print the keyring
 and I print the 'eddsa public key'
 EOF
       slexe $SRC/keyring
-      cat <<EOF > $SRC/unsecuredDocument.data.json
+}
+
+@test "Create the rdf-canon objects" {
+  cat <<EOF > $SRC/unsecuredDocument.data.json
 {
   "unsecuredDocument": {
     "@context": [
@@ -38,9 +41,6 @@ EOF
   }
 }
 EOF
-}
-
-@test "Create the rdf-canon objects" {
   export contract=rdf-canon-objects
   prepare data $SRC/unsecuredDocument.data.json
   prepare keys $SRC/keyring.out.json
@@ -121,5 +121,5 @@ and I move 'proof' in 'document'
 Then print 'document' as 'string'
 EOF
   slexe  $SRC/hash-and-sign
-  cat $SRC/hash-and-sign.out.json | >&3 jq .
+#  cat $SRC/hash-and-sign.out.json | >&3 jq .
 }

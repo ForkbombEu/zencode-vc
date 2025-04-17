@@ -38,5 +38,23 @@ slexe() {
       cut -d\" -f1 | base64 -d | jq .
     exit 1
   }
+  [ "$output" == "" ] && {
+    _err "Output is missing, no result from previous computation" | tee -a
+    exit 1
+  }
+  rm -f "${1}.out.json"
+  echo "$output" > "${1}.out.json"
+  >&3 echo " 💾 > `basename ${1}.out.json`"
   set -e
+}
+
+save_output() {
+  filename="$1"
+  [ "$output" == "" ] && {
+    _err "Output is missing, no result from previous computation" | tee -a
+    exit 1
+  }
+  rm -f "${1}"
+  echo "$output" > "${1}"
+  >&3 echo " 💾 > `basename $1`"
 }

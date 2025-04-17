@@ -1,25 +1,26 @@
+# A.1 Representation: ecdsa-rdfc-2019, with curve P-256
+# https://w3c.github.io/vc-di-ecdsa/
+
 setup() {
   load bats/setup
 }
 
 @test "Create the keyring and document" {
-      cat << EOF > $SRC/keygen.keys.json
+      cat << EOF > $SRC/keyring.keys.json
 {"zero":"000000"}
 EOF
-      cat <<EOF > $SRC/keygen.slang
+      cat <<EOF > $SRC/keyring.slang
 Scenario eddsa
-Scenario ecdh
+Scenario es256
 Given I have a 'string' named 'zero'
 When I create the hash of 'zero'
-When I create the eddsa key with secret 'hash'
-When I create the ecdh key with secret 'hash'
-and I create the eddsa public key
+When I create the es256 key with secret 'hash'
+and I create the es256 public key
 Then I print the keyring
-and I print the 'eddsa public key'
+and I print the 'es256 public key'
 EOF
-      slexe $SRC/keygen
-      assert_output '{"eddsa_public_key":"1fd1gXxvsng5gpmf7pBt9sdfG7QKij19dkQHvMLcRkD","keyring":{"ecdh":"kbTRQoI/fSDF8I32kSLeQ/NfBXqYjZYZ9tMThIXJogM=","eddsa":"Aon2riLUAiUz7re5L4DN5KHVXMpi9QG5QQbYKzq7PiF4"}}'
-      save_output $SRC/keyring.keys.json
+      slexe $SRC/keyring
+      assert_output '{"es256_public_key":"99+SsvOYFvi7z3xrggKzEcPE4ZOJwFBwBxLlAbMvbrGW2qgSI0XPXcW2XeRuTiuIrd6qoErTWcYuY0hvgr9Dwg==","keyring":{"es256":"kbTRQoI/fSDF8I32kSLeQ/NfBXqYjZYZ9tMThIXJogM="}}'
 
       cat <<EOF > $SRC/unsecuredDocument.data.json
 {
@@ -45,7 +46,7 @@ EOF
 
 @test "Create the rdf-canon objects" {
   ln -sf $SRC/unsecuredDocument.data.json $SRC/rdf-canon-objects.data.json
-  ln -sf $SRC/keyring.keys.json $SRC/rdf-canon-objects.keys.json
+  ln -sf $SRC/keyring.out.json $SRC/rdf-canon-objects.keys.json
   cat <<EOF > $SRC/rdf-canon-objects.slang
 rule unknown ignore
 Given I have a 'string dictionary' named 'unsecuredDocument'
@@ -64,27 +65,27 @@ and I write string 'assertionMethod' in 'proofPurpose'
 and I move 'proofPurpose' in 'proofConfig'
 and I write string '2023-02-24T23:36:38Z' in 'created'
 and I move 'created' in 'proofConfig'
+and I rename 'unsecuredDocument' to 'document'
 Then print 'proofConfig' as 'string'
-and print 'unsecuredDocument' as 'string'
+and print 'document' as 'string'
 Compute 'proofConfig rdf-canon': generate serialized canonical rdf with dictionary 'proofConfig'
-Compute 'unsecuredDocument rdf-canon': generate serialized canonical rdf with dictionary 'unsecuredDocument'
+Compute 'document rdf-canon': generate serialized canonical rdf with dictionary 'document'
 EOF
   slexe $SRC/rdf-canon-objects
   # reproduce https://w3c.github.io/vc-di-ecdsa/#example-proof-options-document
-  save_output $SRC/rdf-canon-objects.out.json
-  rdf=`cat src/rdf-canon-objects.out.json | jq -r '."proofConfig rdf-canon"' | base64 -d`
-  >&3 echo "${rdf}"
+  # rdf=`cat src/rdf-canon-objects.out.json | jq -r '."proofConfig rdf-canon"' | base64 -d`
+  # >&3 echo "${rdf}"
 
   # Compare with https://w3c.github.io/vc-di-ecdsa/#example-canonical-proof-options-document
-  cat <<EOF > example10.rdf
-_:c14n0 <http://purl.org/dc/terms/created> "2023-02-24T23:36:38Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
-_:c14n0 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://w3id.org/security#DataIntegrityProof> .
-_:c14n0 <https://w3id.org/security#cryptosuite> "ecdsa-rdfc-2019"^^<https://w3id.org/security#cryptosuiteString> .
-_:c14n0 <https://w3id.org/security#proofPurpose> <https://w3id.org/security#assertionMethod> .
-_:c14n0 <https://w3id.org/security#verificationMethod> <did:key:zDnaepBuvsQ8cpsWrVKw8fbpGpvPeNSjVPTWoq6cRqaYzBKVP#zDnaepBuvsQ8cpsWrVKw8fbpGpvPeNSjVPTWoq6cRqaYzBKVP> .
-EOF
-  printf "$rdf" > config-rdf-canon.rdf
-   diff -u config-rdf-canon.rdf example10.rdf
+#   cat <<EOF > example10.rdf
+# _:c14n0 <http://purl.org/dc/terms/created> "2023-02-24T23:36:38Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+# _:c14n0 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://w3id.org/security#DataIntegrityProof> .
+# _:c14n0 <https://w3id.org/security#cryptosuite> "ecdsa-rdfc-2019"^^<https://w3id.org/security#cryptosuiteString> .
+# _:c14n0 <https://w3id.org/security#proofPurpose> <https://w3id.org/security#assertionMethod> .
+# _:c14n0 <https://w3id.org/security#verificationMethod> <did:key:zDnaepBuvsQ8cpsWrVKw8fbpGpvPeNSjVPTWoq6cRqaYzBKVP#zDnaepBuvsQ8cpsWrVKw8fbpGpvPeNSjVPTWoq6cRqaYzBKVP> .
+# EOF
+#   printf "$rdf" > config-rdf-canon.rdf
+#    diff -u config-rdf-canon.rdf example10.rdf
 #   assert_output "`cat example10.rdf`"
 #   assert_output '_:c14n0 <http://purl.org/dc/terms/created> "2023-02-24T23:36:38Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
 # _:c14n0 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://w3id.org/security#DataIntegrityProof> .
@@ -95,20 +96,43 @@ EOF
 }
 
 @test "Create the signature" {
+  # vectors by w3c vc-di-ecdsa
+#   cat <<EOF > $SRC/hash-and-sign.extra.json
+#   { "proofConfig_w3c_hash": "3a8a522f689025727fb9d1f0fa99a618da023e8494ac74f51015d009d35abc2e",
+#     "document_w3c_hash": "517744132ae165a5349155bef0bb0cf2258fff99dfe1dbd914b938d775a36017"
+#   }
+# EOF
   ln -sf $SRC/rdf-canon-objects.out.json $SRC/hash-and-sign.data.json
-  ln -sf $SRC/keyring.keys.json $SRC/hash-and-sign.keys.json
+  ln -sf $SRC/keyring.out.json $SRC/hash-and-sign.keys.json
   cat <<EOF > $SRC/hash-and-sign.slang
-Given I have a 'base64' named 'unsecuredDocument rdf-canon'
+Scenario es256
+Given I have a 'keyring'
+Given I have a 'base64' named 'document rdf-canon'
 and I have a 'base64' named 'proofConfig rdf-canon'
+#and I have a 'hex' named 'proofConfig w3c hash'
+#and I have a 'hex' named 'document w3c hash'
 When I create the hash of 'proofConfig rdf-canon'
 and rename 'hash' to 'proofConfig hash'
-and I create the hash of 'unsecuredDocument rdf-canon'
-and rename 'hash' to 'unsecuredDocument hash'
-Then print 'unsecuredDocument hash' as 'hex'
-and print 'proofConfig hash' as 'hex'
+and I create the hash of 'document rdf-canon'
+and rename 'hash' to 'document hash'
+
+##+ interim check with vectors by w3c vc-di-ecdsa
+When I set 'document w3c hash' to '517744132ae165a5349155bef0bb0cf2258fff99dfe1dbd914b938d775a36017' as 'hex'
+and I set 'proofConfig w3c hash' to '3a8a522f689025727fb9d1f0fa99a618da023e8494ac74f51015d009d35abc2e' as 'hex'
+When I verify 'proofConfig w3c hash' is equal to 'proofConfig hash'
+and I verify 'document w3c hash' is equal to 'document hash'
+##-
+
+When I append 'document hash' to 'proofConfig hash'
+
+##+ interim check with vectors by w3c vc-di-ecdsa
+and I set 'Combined Hashes' to '3a8a522f689025727fb9d1f0fa99a618da023e8494ac74f51015d009d35abc2e517744132ae165a5349155bef0bb0cf2258fff99dfe1dbd914b938d775a36017' as 'hex'
+and I verify 'Combined Hashes' is equal to 'proofConfig hash'
+##-
+
+When I create the es256 signature of 'proofConfig hash'
+Then print 'es256 signature' as 'hex'
 EOF
   slexe  $SRC/hash-and-sign
-  save_output $SRC/hash-and-sign.out.json
   >&3 cat $SRC/hash-and-sign.out.json | jq .
-  # assert_output '{"proofConfig_rdf-canon":"_:c14n0 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://w3id.org/security#DataIntegrityProof> .\n_:c14n0 <https://w3id.org/security#cryptosuite> \"eddsa-rdfc-2022\"^^<https://w3id.org/security#cryptosuiteString> .\n","unsecuredDocument_rdf-canon":"<did:example:abcdefgh> <https://www.w3.org/ns/credentials/examples#alumniOf> \"The School of Examples\" .\n<urn:uuid:58172aac-d8ba-11ed-83dd-0b3aef56cc33> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://www.w3.org/2018/credentials#VerifiableCredential> .\n<urn:uuid:58172aac-d8ba-11ed-83dd-0b3aef56cc33> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://www.w3.org/ns/credentials/examples#AlumniCredential> .\n<urn:uuid:58172aac-d8ba-11ed-83dd-0b3aef56cc33> <https://schema.org/description> \"A minimum viable example of an Alumni Credential.\" .\n<urn:uuid:58172aac-d8ba-11ed-83dd-0b3aef56cc33> <https://schema.org/name> \"Alumni Credential\" .\n<urn:uuid:58172aac-d8ba-11ed-83dd-0b3aef56cc33> <https://www.w3.org/2018/credentials#credentialSubject> <did:example:abcdefgh> .\n<urn:uuid:58172aac-d8ba-11ed-83dd-0b3aef56cc33> <https://www.w3.org/2018/credentials#issuer> <https://vc.example/issuers/5678> .\n<urn:uuid:58172aac-d8ba-11ed-83dd-0b3aef56cc33> <https://www.w3.org/2018/credentials#validFrom> \"2023-01-01T00:00:00Z\"^^<http://www.w3.org/2001/XMLSchema#dateTime> .\n"}'
 }

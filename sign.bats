@@ -58,7 +58,7 @@ and I write string 'DataIntegrityProof' in 'type'
 and I move 'type' in 'proofConfig'
 and I write string 'did:key:zDnaepBuvsQ8cpsWrVKw8fbpGpvPeNSjVPTWoq6cRqaYzBKVP#zDnaepBuvsQ8cpsWrVKw8fbpGpvPeNSjVPTWoq6cRqaYzBKVP' in 'verificationMethod'
 and I move 'verificationMethod' in 'proofConfig'
-and I write string 'eddsa-rdfc-2019' in 'cryptosuite'
+and I write string 'ecdsa-rdfc-2019' in 'cryptosuite'
 and I move 'cryptosuite' in 'proofConfig'
 and I write string 'assertionMethod' in 'proofPurpose'
 and I move 'proofPurpose' in 'proofConfig'
@@ -72,17 +72,19 @@ EOF
   slexe $SRC/rdf-canon-objects
   # reproduce https://w3c.github.io/vc-di-ecdsa/#example-proof-options-document
   save_output $SRC/rdf-canon-objects.out.json
-#   output=`cat src/rdf-canon-objects.out.json | jq -r '."proofConfig rdf-canon"' | base64 -d`
-#   # Compare with https://w3c.github.io/vc-di-ecdsa/#example-canonical-proof-options-document
-#   cat <<EOF > example10.rdf
-# _:c14n0 <http://purl.org/dc/terms/created> "2023-02-24T23:36:38Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
-# _:c14n0 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://w3id.org/security#DataIntegrityProof> .
-# _:c14n0 <https://w3id.org/security#cryptosuite> "ecdsa-rdfc-2019"^^<https://w3id.org/security#cryptosuiteString> .
-# _:c14n0 <https://w3id.org/security#proofPurpose> <https://w3id.org/security#assertionMethod> .
-# _:c14n0 <https://w3id.org/security#verificationMethod> <did:key:zDnaepBuvsQ8cpsWrVKw8fbpGpvPeNSjVPTWoq6cRqaYzBKVP#zDnaepBuvsQ8cpsWrVKw8fbpGpvPeNSjVPTWoq6cRqaYzBKVP> .
-# EOF
-#   echo $output > config-rdf-canon.rdf
-#   diff -u config-rdf-canon.rdf example10.rdf
+  rdf=`cat src/rdf-canon-objects.out.json | jq -r '."proofConfig rdf-canon"' | base64 -d`
+  >&3 echo "${rdf}"
+
+  # Compare with https://w3c.github.io/vc-di-ecdsa/#example-canonical-proof-options-document
+  cat <<EOF > example10.rdf
+_:c14n0 <http://purl.org/dc/terms/created> "2023-02-24T23:36:38Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+_:c14n0 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://w3id.org/security#DataIntegrityProof> .
+_:c14n0 <https://w3id.org/security#cryptosuite> "ecdsa-rdfc-2019"^^<https://w3id.org/security#cryptosuiteString> .
+_:c14n0 <https://w3id.org/security#proofPurpose> <https://w3id.org/security#assertionMethod> .
+_:c14n0 <https://w3id.org/security#verificationMethod> <did:key:zDnaepBuvsQ8cpsWrVKw8fbpGpvPeNSjVPTWoq6cRqaYzBKVP#zDnaepBuvsQ8cpsWrVKw8fbpGpvPeNSjVPTWoq6cRqaYzBKVP> .
+EOF
+  printf "$rdf" > config-rdf-canon.rdf
+   diff -u config-rdf-canon.rdf example10.rdf
 #   assert_output "`cat example10.rdf`"
 #   assert_output '_:c14n0 <http://purl.org/dc/terms/created> "2023-02-24T23:36:38Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
 # _:c14n0 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://w3id.org/security#DataIntegrityProof> .

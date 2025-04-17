@@ -12,15 +12,15 @@ function _err() { >&2 printf "$*\n"; }
 slexe() {
   set +e
   [ -r bin/slexfe ] || {
-    _err "Error: bin/slexfe not found."
+    _err "Error: bin/slexfe not found." | tee -a $TMP/err
     exit 1
   }
   command -v slangroom-exec > /dev/null || {
-    _err "Error: slangroom-exec not found."
+    _err "Error: slangroom-exec not found." | tee -a $TMP/err
     exit 1
   }
   [ -r "${1}.slang" ] || {
-    _err "Error: script not found: $1"
+    _err "Error: script not found: $1" | tee -a $TMP/err
     exit 1
   }
   # run bats_pipe bash bin/slexfe -F $1 \| bin/slangroom-exec

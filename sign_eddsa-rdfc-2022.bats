@@ -1,18 +1,21 @@
-# A.1 Representation: ecdsa-rdfc-2019, with curve P-256
-# https://w3c.github.io/vc-di-ecdsa/
+# B.1 Representation: eddsa-rdfc-2022
+# https://w3c.github.io/vc-di-eddsa
 
 setup() {
   load bats/setup
 }
 
 @test "Create the keyring and document" {
+cat <<EOF > $SRC/keyring.keys.json
+{ "w3c test key": "c96ef9ea10c5e414c471723aff9de72c35fa5b70fae97e8832ecac7d2e2b8ed6" }
+EOF
       cat <<EOF > $SRC/keyring.slang
-Scenario es256
-Given nothing
-When I create the es256 key
-and I create the es256 public key
+Scenario eddsa
+Given I have a 'hex' named 'w3c test key'
+When I create the eddsa key with secret 'w3c test key'
+and I create the eddsa public key
 Then I print the keyring
-and I print the 'es256 public key'
+and I print the 'eddsa public key'
 EOF
       slexe $SRC/keyring
       cat <<EOF > $SRC/unsecuredDocument.data.json
@@ -51,9 +54,9 @@ and I create the 'string dictionary' named 'proofConfig'
 and I move '@context' in 'proofConfig'
 and I write string 'DataIntegrityProof' in 'type'
 and I move 'type' in 'proofConfig'
-and I write string 'did:key:zDnaepBuvsQ8cpsWrVKw8fbpGpvPeNSjVPTWoq6cRqaYzBKVP#zDnaepBuvsQ8cpsWrVKw8fbpGpvPeNSjVPTWoq6cRqaYzBKVP' in 'verificationMethod'
+and I write string 'did:key:z6MkrJVnaZkeFzdQyMZu1cgjg7k1pZZ6pvBQ7XJPt4swbTQ2#z6MkrJVnaZkeFzdQyMZu1cgjg7k1pZZ6pvBQ7XJPt4swbTQ2' in 'verificationMethod'
 and I move 'verificationMethod' in 'proofConfig'
-and I write string 'ecdsa-rdfc-2019' in 'cryptosuite'
+and I write string 'eddsa-rdfc-2022' in 'cryptosuite'
 and I move 'cryptosuite' in 'proofConfig'
 and I write string 'assertionMethod' in 'proofPurpose'
 and I move 'proofPurpose' in 'proofConfig'
@@ -66,41 +69,14 @@ Compute 'proofConfig rdf-canon': generate serialized canonical rdf with dictiona
 Compute 'document rdf-canon': generate serialized canonical rdf with dictionary 'document'
 EOF
   slexe $SRC/rdf-canon-objects
-  # reproduce https://w3c.github.io/vc-di-ecdsa/#example-proof-options-document
-  # rdf=`cat src/rdf-canon-objects.out.json | jq -r '."proofConfig rdf-canon"' | base64 -d`
-  # >&3 echo "${rdf}"
-
-  # Compare with https://w3c.github.io/vc-di-ecdsa/#example-canonical-proof-options-document
-#   cat <<EOF > example10.rdf
-# _:c14n0 <http://purl.org/dc/terms/created> "2023-02-24T23:36:38Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
-# _:c14n0 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://w3id.org/security#DataIntegrityProof> .
-# _:c14n0 <https://w3id.org/security#cryptosuite> "ecdsa-rdfc-2019"^^<https://w3id.org/security#cryptosuiteString> .
-# _:c14n0 <https://w3id.org/security#proofPurpose> <https://w3id.org/security#assertionMethod> .
-# _:c14n0 <https://w3id.org/security#verificationMethod> <did:key:zDnaepBuvsQ8cpsWrVKw8fbpGpvPeNSjVPTWoq6cRqaYzBKVP#zDnaepBuvsQ8cpsWrVKw8fbpGpvPeNSjVPTWoq6cRqaYzBKVP> .
-# EOF
-#   printf "$rdf" > config-rdf-canon.rdf
-#    diff -u config-rdf-canon.rdf example10.rdf
-#   assert_output "`cat example10.rdf`"
-#   assert_output '_:c14n0 <http://purl.org/dc/terms/created> "2023-02-24T23:36:38Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
-# _:c14n0 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://w3id.org/security#DataIntegrityProof> .
-# _:c14n0 <https://w3id.org/security#cryptosuite> "ecdsa-rdfc-2019"^^<https://w3id.org/security#cryptosuiteString> .
-# _:c14n0 <https://w3id.org/security#proofPurpose> <https://w3id.org/security#assertionMethod> .
-# _:c14n0 <https://w3id.org/security#verificationMethod> <did:key:zDnaepBuvsQ8cpsWrVKw8fbpGpvPeNSjVPTWoq6cRqaYzBKVP#zDnaepBuvsQ8cpsWrVKw8fbpGpvPeNSjVPTWoq6cRqaYzBKVP> .'
-
 }
 
 @test "Create the signature" {
-  # vectors by w3c vc-di-ecdsa
-#   cat <<EOF > $SRC/hash-and-sign.extra.json
-#   { "proofConfig_w3c_hash": "3a8a522f689025727fb9d1f0fa99a618da023e8494ac74f51015d009d35abc2e",
-#     "document_w3c_hash": "517744132ae165a5349155bef0bb0cf2258fff99dfe1dbd914b938d775a36017"
-#   }
-# EOF
   export contract="hash-and-sign"
   prepare data $SRC/rdf-canon-objects.out.json
   prepare keys $SRC/keyring.out.json
   cat <<EOF > $SRC/hash-and-sign.slang
-Scenario es256
+Scenario eddsa
 Given I have a 'keyring'
 Given I have a 'base64' named 'document rdf-canon'
 and I have a 'base64' named 'proofConfig rdf-canon'
@@ -113,7 +89,7 @@ and rename 'hash' to 'document hash'
 
 ##+ interim check with vectors by w3c vc-di-ecdsa
 When I set 'document w3c hash' to '517744132ae165a5349155bef0bb0cf2258fff99dfe1dbd914b938d775a36017' as 'hex'
-and I set 'proofConfig w3c hash' to '3a8a522f689025727fb9d1f0fa99a618da023e8494ac74f51015d009d35abc2e' as 'hex'
+and I set 'proofConfig w3c hash' to 'bea7b7acfbad0126b135104024a5f1733e705108f42d59668b05c0c50004c6b0' as 'hex'
 When I verify 'proofConfig w3c hash' is equal to 'proofConfig hash'
 and I verify 'document w3c hash' is equal to 'document hash'
 ##-
@@ -121,12 +97,18 @@ and I verify 'document w3c hash' is equal to 'document hash'
 When I append 'document hash' to 'proofConfig hash'
 
 ##+ interim check with vectors by w3c vc-di-ecdsa
-and I set 'Combined Hashes' to '3a8a522f689025727fb9d1f0fa99a618da023e8494ac74f51015d009d35abc2e517744132ae165a5349155bef0bb0cf2258fff99dfe1dbd914b938d775a36017' as 'hex'
+and I set 'Combined Hashes' to 'bea7b7acfbad0126b135104024a5f1733e705108f42d59668b05c0c50004c6b0517744132ae165a5349155bef0bb0cf2258fff99dfe1dbd914b938d775a36017' as 'hex'
 and I verify 'Combined Hashes' is equal to 'proofConfig hash'
 ##-
 
-When I create the es256 signature of 'proofConfig hash'
-Then print 'es256 signature' as 'hex'
+When I create the eddsa signature of 'proofConfig hash'
+
+##+ interim check with vectors by w3c vc-di-eddsa
+and I set 'sigcheck' to '2YwC8z3ap7yx1nZYCg4L3j3ApHsF8kgPdSb5xoS1VR7vPG3F561B52hYnQF9iseabecm3ijx4K1FBTQsCZahKZme' as 'base58'
+and I verify 'eddsa signature' is equal to 'sigcheck'
+##-
+
+Then print 'eddsa signature' as 'base58'
 EOF
   slexe  $SRC/hash-and-sign
   >&3 cat $SRC/hash-and-sign.out.json | jq .

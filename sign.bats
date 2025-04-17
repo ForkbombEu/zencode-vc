@@ -24,22 +24,37 @@ EOF
 
 @test "Create the proofConfig" {
   cat <<EOF > $SRC/proofConfig.slang
+rule unknown ignore
 Given I have a 'string dictionary' named 'unsecuredDocument'
 and I have a 'keyring'
 
 When I create copy of '@context' from 'unsecuredDocument'
 and I rename 'copy' to '@context'
-and I create the new dictionary named 'proofConfig'
+and I create the 'string dictionary' named 'proofConfig'
 and I move '@context' in 'proofConfig'
 and I write string 'DataIntegrityProof' in 'type'
 and I move 'type' in 'proofConfig'
 and I write string 'eddsa-rdfc-2022' in 'cryptosuite'
 and I move 'cryptosuite' in 'proofConfig'
-
 Then print 'proofConfig' as 'string'
+and print 'unsecuredDocument' as 'string'
+Compute 'proofConfig rdf-canon': generate serialized canonical rdf with dictionary 'proofConfig'
+Compute 'unsecuredDocument rdf-canon': generate serialized canonical rdf with dictionary 'unsecuredDocument'
 EOF
   ln -sf $SRC/unsecuredDocument.data.json $SRC/proofConfig.data.json
   ln -sf $SRC/keyring.keys.json $SRC/proofConfig.keys.json
   slexe $SRC/proofConfig
+  echo $output > src/hash_and_sign.data.json
+#  assert_output ''
+}
+
+@test "Create the signature" {
+  cat <<EOF > src/hash_and_sign.slang
+rule unknown ignore
+Given I have a 'base64' named 'unsecuredDocument rdf-canon'
+and I have a 'base64' named 'proofConfig rdf-canon'
+Then print all data as 'string'
+EOF
+  slexe  src/hash_and_sign
   assert_output ''
 }

@@ -24,8 +24,9 @@ slexe() {
     exit 1
   }
   # run bats_pipe bash bin/slexfe -F $1 \| bin/slangroom-exec
-  bash bin/slexfe -F $1 | bin/slangroom-exec \
-                            1>$TMP/out 2> >(tee $TMP/err >&2)
+  bash bin/slexfe -F $1 \
+    | bin/slangroom-exec \
+        1>$TMP/out 2> >(tee $TMP/err | grep -v 'J64 ' >&2)
   local res=$?
   export output=`cat $TMP/out`
   [ "$res" != 0 ] && {

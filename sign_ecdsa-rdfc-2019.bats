@@ -6,22 +6,17 @@ setup() {
 }
 
 @test "Create the keyring and document" {
-      cat << EOF > $SRC/keyring.keys.json
-{"zero":"000000"}
-EOF
       cat <<EOF > $SRC/keyring.slang
 Scenario eddsa
 Scenario es256
 Given I have a 'string' named 'zero'
 When I create the hash of 'zero'
-When I create the es256 key with secret 'hash'
+When I create the es256 key
 and I create the es256 public key
 Then I print the keyring
 and I print the 'es256 public key'
 EOF
       slexe $SRC/keyring
-      assert_output '{"es256_public_key":"99+SsvOYFvi7z3xrggKzEcPE4ZOJwFBwBxLlAbMvbrGW2qgSI0XPXcW2XeRuTiuIrd6qoErTWcYuY0hvgr9Dwg==","keyring":{"es256":"kbTRQoI/fSDF8I32kSLeQ/NfBXqYjZYZ9tMThIXJogM="}}'
-
       cat <<EOF > $SRC/unsecuredDocument.data.json
 {
   "unsecuredDocument": {

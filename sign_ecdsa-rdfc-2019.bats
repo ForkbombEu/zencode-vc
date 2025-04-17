@@ -6,7 +6,8 @@ setup() {
 }
 
 @test "Create the keyring and document" {
-      cat <<EOF > $SRC/keyring.slang
+  export contract=ecdsa_keyring
+  cat <<EOF > $SRC/${contract}.slang
 Scenario es256
 Given nothing
 When I create the es256 key
@@ -14,8 +15,11 @@ and I create the es256 public key
 Then I print the keyring
 and I print the 'es256 public key'
 EOF
-      slexe $SRC/keyring
-      cat <<EOF > $SRC/unsecuredDocument.data.json
+  slexe $SRC/${contract}
+}
+
+@test "Create the rdf-canon objects" {
+  cat <<EOF > $SRC/unsecuredDocument.data.json
 {
   "unsecuredDocument": {
     "@context": [
@@ -35,13 +39,10 @@ EOF
   }
 }
 EOF
-}
-
-@test "Create the rdf-canon objects" {
-  export contract=rdf-canon-objects
+  export contract="ecdsa_rdf-canon-objects"
   prepare data $SRC/unsecuredDocument.data.json
-  prepare keys $SRC/keyring.out.json
-  cat <<EOF > $SRC/rdf-canon-objects.slang
+  prepare keys $SRC/ecdsa_keyring.out.json
+  cat <<EOF > $SRC/${contract}.slang
 rule unknown ignore
 Given I have a 'string dictionary' named 'unsecuredDocument'
 and I have a 'keyring'
@@ -65,43 +66,18 @@ and print 'document' as 'string'
 Compute 'proofConfig rdf-canon': generate serialized canonical rdf with dictionary 'proofConfig'
 Compute 'document rdf-canon': generate serialized canonical rdf with dictionary 'document'
 EOF
-  slexe $SRC/rdf-canon-objects
-  # reproduce https://w3c.github.io/vc-di-ecdsa/#example-proof-options-document
-  # rdf=`cat src/rdf-canon-objects.out.json | jq -r '."proofConfig rdf-canon"' | base64 -d`
-  # >&3 echo "${rdf}"
-
-  # Compare with https://w3c.github.io/vc-di-ecdsa/#example-canonical-proof-options-document
-#   cat <<EOF > example10.rdf
-# _:c14n0 <http://purl.org/dc/terms/created> "2023-02-24T23:36:38Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
-# _:c14n0 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://w3id.org/security#DataIntegrityProof> .
-# _:c14n0 <https://w3id.org/security#cryptosuite> "ecdsa-rdfc-2019"^^<https://w3id.org/security#cryptosuiteString> .
-# _:c14n0 <https://w3id.org/security#proofPurpose> <https://w3id.org/security#assertionMethod> .
-# _:c14n0 <https://w3id.org/security#verificationMethod> <did:key:zDnaepBuvsQ8cpsWrVKw8fbpGpvPeNSjVPTWoq6cRqaYzBKVP#zDnaepBuvsQ8cpsWrVKw8fbpGpvPeNSjVPTWoq6cRqaYzBKVP> .
-# EOF
-#   printf "$rdf" > config-rdf-canon.rdf
-#    diff -u config-rdf-canon.rdf example10.rdf
-#   assert_output "`cat example10.rdf`"
-#   assert_output '_:c14n0 <http://purl.org/dc/terms/created> "2023-02-24T23:36:38Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
-# _:c14n0 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://w3id.org/security#DataIntegrityProof> .
-# _:c14n0 <https://w3id.org/security#cryptosuite> "ecdsa-rdfc-2019"^^<https://w3id.org/security#cryptosuiteString> .
-# _:c14n0 <https://w3id.org/security#proofPurpose> <https://w3id.org/security#assertionMethod> .
-# _:c14n0 <https://w3id.org/security#verificationMethod> <did:key:zDnaepBuvsQ8cpsWrVKw8fbpGpvPeNSjVPTWoq6cRqaYzBKVP#zDnaepBuvsQ8cpsWrVKw8fbpGpvPeNSjVPTWoq6cRqaYzBKVP> .'
-
+  slexe $SRC/${contract}
 }
 
 @test "Create the signature" {
-  # vectors by w3c vc-di-ecdsa
-#   cat <<EOF > $SRC/hash-and-sign.extra.json
-#   { "proofConfig_w3c_hash": "3a8a522f689025727fb9d1f0fa99a618da023e8494ac74f51015d009d35abc2e",
-#     "document_w3c_hash": "517744132ae165a5349155bef0bb0cf2258fff99dfe1dbd914b938d775a36017"
-#   }
-# EOF
-  export contract="hash-and-sign"
-  prepare data $SRC/rdf-canon-objects.out.json
-  prepare keys $SRC/keyring.out.json
-  cat <<EOF > $SRC/hash-and-sign.slang
+  export contract="ecdsa_hash-and-sign"
+  prepare data $SRC/ecdsa_rdf-canon-objects.out.json
+  prepare keys $SRC/ecdsa_keyring.out.json
+  cat <<EOF > $SRC/${contract}.slang
 Scenario es256
 Given I have a 'keyring'
+and I have a 'string dictionary' named 'proofConfig'
+and I have a 'string dictionary' named 'document'
 Given I have a 'base64' named 'document rdf-canon'
 and I have a 'base64' named 'proofConfig rdf-canon'
 #and I have a 'hex' named 'proofConfig w3c hash'
@@ -126,8 +102,18 @@ and I verify 'Combined Hashes' is equal to 'proofConfig hash'
 ##-
 
 When I create the es256 signature of 'proofConfig hash'
-Then print 'es256 signature' as 'hex'
+
+When I rename 'proofConfig' to 'proof'
+# multisignature base58 prefix
+and I write string 'z' in 'proofValue'
+and I append 'base58' of 'es256 signature' to 'proofValue'
+and I move 'proofValue' in 'proof'
+and I remove '@context' from 'proof'
+and I move 'proof' in 'document'
+
+Then print 'document' as 'string'
+
 EOF
-  slexe  $SRC/hash-and-sign
-  >&3 cat $SRC/hash-and-sign.out.json | jq .
+  slexe  $SRC/${contract}
+  # cat $SRC/${contract}.out.json | >&3 jq .
 }

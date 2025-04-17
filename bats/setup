@@ -24,6 +24,7 @@ slexe() {
     exit 1
   }
   # run bats_pipe bash bin/slexfe -F $1 \| bin/slangroom-exec
+  >&3 echo " 🔥 `basename ${1}.slang`"
   bash bin/slexfe -F $1 \
     | bin/slangroom-exec \
         1>$TMP/out 2> >(tee $TMP/err | grep -v 'J64 ' >&2)
@@ -44,7 +45,8 @@ slexe() {
   }
   rm -f "${1}.out.json"
   echo "$output" > "${1}.out.json"
-  >&3 echo " 💾 > `basename ${1}.out.json`"
+  >&3 echo " 💾 `basename ${1}.out.json`"
+  >&3 echo ""
   set -e
 }
 
@@ -61,17 +63,16 @@ save_output() {
 
 prepare() {
   [ -r "$2" ] || {
-    _err "Input file not found: $1" | tee -a $TMP/err
+    _err "Input file not found: $2" | tee -a $TMP/err
     exit 1
   }
   [ "$contract" == "" ] && {
     _err "Prepare error: contract unknown" | tee -a $TMP/err
     exit 1
   }
-  ft="data"
-  [ "$1" == "" ] || {
-    ft="$1"
-  }
-  rm -f "${contract}.${ft}.json"
-  ln -s "$2" "${contract}.${ft}.json"
+  local ft="data"
+  [ "$1" == "" ] || ft="$1"
+  rm -f "${SRC}/${contract}.${ft}.json"
+  ln -s "$2" "${SRC}/${contract}.${ft}.json"
+  >&3 echo " 🔌 $ft `basename $2`"
 }

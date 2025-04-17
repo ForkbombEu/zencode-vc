@@ -80,6 +80,8 @@ Scenario eddsa
 Given I have a 'keyring'
 Given I have a 'base64' named 'document rdf-canon'
 and I have a 'base64' named 'proofConfig rdf-canon'
+and I have a 'string dictionary' named 'proofConfig'
+and I have a 'string dictionary' named 'document'
 #and I have a 'hex' named 'proofConfig w3c hash'
 #and I have a 'hex' named 'document w3c hash'
 When I create the hash of 'proofConfig rdf-canon'
@@ -108,8 +110,16 @@ and I set 'sigcheck' to '2YwC8z3ap7yx1nZYCg4L3j3ApHsF8kgPdSb5xoS1VR7vPG3F561B52h
 and I verify 'eddsa signature' is equal to 'sigcheck'
 ##-
 
-Then print 'eddsa signature' as 'base58'
+When I rename 'proofConfig' to 'proof'
+# multisignature base58 prefix
+and I write string 'z' in 'proofValue'
+and I append 'base58' of 'eddsa signature' to 'proofValue'
+and I move 'proofValue' in 'proof'
+and I remove '@context' from 'proof'
+and I move 'proof' in 'document'
+
+Then print 'document' as 'string'
 EOF
   slexe  $SRC/hash-and-sign
-  >&3 cat $SRC/hash-and-sign.out.json | jq .
+  cat $SRC/hash-and-sign.out.json | >&3 jq .
 }

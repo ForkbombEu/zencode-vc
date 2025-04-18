@@ -14,7 +14,6 @@ jobs:
       - uses: jdx/mise-action@v2
         with:
           install: true
-          cache: true
       - name: slangroom tests
         run: |
           ln -s `mise which slangroom-exec` bin/slangroom-exec

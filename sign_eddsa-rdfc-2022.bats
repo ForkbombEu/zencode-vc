@@ -121,5 +121,4 @@ and I move 'proof' in 'document'
 Then print 'document' as 'string'
 EOF
   slexe  $SRC/hash-and-sign
-#  cat $SRC/hash-and-sign.out.json | >&3 jq .
 }

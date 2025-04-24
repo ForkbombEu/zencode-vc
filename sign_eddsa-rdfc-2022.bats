@@ -111,9 +111,10 @@ and I verify 'eddsa signature' is equal to 'sigcheck'
 ##-
 
 When I rename 'proofConfig' to 'proof'
+and I create 'base58' string of 'eddsa signature'
+and I rename 'base58' to 'proofValue'
 # multisignature base58 prefix
-and I write string 'z' in 'proofValue'
-and I append 'base58' of 'eddsa signature' to 'proofValue'
+and I prepend string 'z' to 'proofValue'
 and I move 'proofValue' in 'proof'
 and I remove '@context' from 'proof'
 and I move 'proof' in 'document'

@@ -23,10 +23,10 @@ slexe() {
     _err "Error: script not found: $1" | tee -a $TMP/err
     exit 1
   }
-  # run bats_pipe bash bin/slexfe -F $1 \| bin/slangroom-exec
+  # run bats_pipe bash bin/slexfe -F $1 \| slangroom-exec
   >&3 echo " 🔥 `basename ${1}.slang`"
   bash bin/slexfe -F $1 \
-    | bin/slangroom-exec \
+    | slangroom-exec \
         1>$TMP/out 2> >(tee $TMP/err | grep -v 'J64 ' >&2)
   local res=$?
   export output=`cat $TMP/out`

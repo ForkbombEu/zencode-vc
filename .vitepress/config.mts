@@ -31,7 +31,8 @@ export default defineConfig({
 
     socialLinks: [
       { icon: 'linkedin', link: 'https://linkedin.com/company/forkbomb' },
-      { icon: 'github', link: 'https://github.com/dyne/zencode-w3c-vc' }
+      { icon: 'github', link: 'https://github.com/dyne/zencode-w3c-vc' },
+      { icon: 'maildotru', link: 'mailto:info@forkbomb.eu' }
     ]
   }
 })

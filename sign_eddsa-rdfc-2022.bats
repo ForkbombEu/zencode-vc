@@ -20,13 +20,14 @@
 
 setup() {
   load bats/setup
+  algo=eddsa
 }
 
 @test "Create the keyring and document" {
-cat <<EOF > $SRC/keyring.keys.json
+cat <<EOF > $SRC/eddsa_keyring.keys.json
 { "w3c test key": "c96ef9ea10c5e414c471723aff9de72c35fa5b70fae97e8832ecac7d2e2b8ed6" }
 EOF
-      cat <<EOF > $SRC/keyring.slang
+      cat <<EOF > $SRC/eddsa_keyring.slang
 Scenario eddsa
 Given I have a 'hex' named 'w3c test key'
 When I create the eddsa key with secret 'w3c test key'
@@ -34,7 +35,7 @@ and I create the eddsa public key
 Then I print the keyring
 and I print the 'eddsa public key'
 EOF
-      slexe $SRC/keyring
+      slexe $SRC/eddsa_keyring
 }
 
 @test "Create the rdf-canon objects" {
@@ -58,10 +59,10 @@ EOF
   }
 }
 EOF
-  export contract=rdf-canon-objects
+  export contract=${algo}_rdf-canon-objects
   prepare data $SRC/unsecuredDocument.data.json
-  prepare keys $SRC/keyring.out.json
-  cat <<EOF > $SRC/rdf-canon-objects.slang
+  prepare keys $SRC/${algo}_keyring.out.json
+  cat <<EOF > $SRC/${algo}_rdf-canon-objects.slang
 rule unknown ignore
 Given I have a 'string dictionary' named 'unsecuredDocument'
 and I have a 'keyring'
@@ -85,14 +86,14 @@ and print 'document' as 'string'
 Compute 'proofConfig rdf-canon': generate serialized canonical rdf with dictionary 'proofConfig'
 Compute 'document rdf-canon': generate serialized canonical rdf with dictionary 'document'
 EOF
-  slexe $SRC/rdf-canon-objects
+  slexe $SRC/${algo}_rdf-canon-objects
 }
 
 @test "Create the signature" {
-  export contract="hash-and-sign"
-  prepare data $SRC/rdf-canon-objects.out.json
-  prepare keys $SRC/keyring.out.json
-  cat <<EOF > $SRC/hash-and-sign.slang
+  export contract=${algo}_hash-and-sign
+  prepare data $SRC/${algo}_rdf-canon-objects.out.json
+  prepare keys $SRC/${algo}_keyring.out.json
+  cat <<EOF > $SRC/${algo}_hash-and-sign.slang
 Scenario eddsa
 Given I have a 'keyring'
 Given I have a 'base64' named 'document rdf-canon'
@@ -138,5 +139,5 @@ and I move 'proof' in 'document'
 
 Then print 'document' as 'string'
 EOF
-  slexe  $SRC/hash-and-sign
+  slexe  $SRC/${algo}_hash-and-sign
 }

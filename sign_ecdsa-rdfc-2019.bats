@@ -20,10 +20,11 @@
 
 setup() {
   load bats/setup
+  algo=ecdsa
 }
 
 @test "Create the keyring and document" {
-  export contract=ecdsa_keyring
+  export contract=${algo}_keyring
   cat <<EOF > $SRC/${contract}.slang
 Scenario es256
 Given nothing
@@ -58,7 +59,7 @@ EOF
 EOF
   export contract="ecdsa_rdf-canon-objects"
   prepare data $SRC/unsecuredDocument.data.json
-  prepare keys $SRC/ecdsa_keyring.out.json
+  prepare keys $SRC/${algo}_keyring.out.json
   cat <<EOF > $SRC/${contract}.slang
 rule unknown ignore
 Given I have a 'string dictionary' named 'unsecuredDocument'
@@ -87,9 +88,9 @@ EOF
 }
 
 @test "Create the signature" {
-  export contract="ecdsa_hash-and-sign"
-  prepare data $SRC/ecdsa_rdf-canon-objects.out.json
-  prepare keys $SRC/ecdsa_keyring.out.json
+  export contract=${algo}_hash-and-sign
+  prepare data $SRC/${algo}_rdf-canon-objects.out.json
+  prepare keys $SRC/${algo}_keyring.out.json
   cat <<EOF > $SRC/${contract}.slang
 Scenario es256
 Given I have a 'keyring'

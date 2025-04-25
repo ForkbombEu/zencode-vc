@@ -20,12 +20,13 @@
 
 setup() {
   load bats/setup
+  algo=eddsa
 }
 
 @test "Prepare the document signature verification" {
-  export contract=prepare-verification-signed-doc
-  prepare data $SRC/hash-and-sign.out.json
-  prepare keys $SRC/keyring.out.json
+  export contract=${algo}_prepare-verification-signed-doc
+  prepare data $SRC/${algo}_hash-and-sign.out.json
+  prepare keys $SRC/${algo}_keyring.out.json
   cat <<EOF > $SRC/${contract}.slang
 Scenario eddsa
 Given I have a 'keyring'
@@ -54,8 +55,8 @@ EOF
 }
 
 @test "Verify the signature" {
-  export contract=verify-prepared-signed-doc
-  prepare data $SRC/prepare-verification-signed-doc.out.json
+  export contract=${algo}_verify-prepared-signed-doc
+  prepare data $SRC/${algo}_prepare-verification-signed-doc.out.json
   prepare keys /dev/null
   cat <<EOF > ${SRC}/${contract}.slang
 Scenario eddsa

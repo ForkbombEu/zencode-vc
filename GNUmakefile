@@ -1,6 +1,7 @@
 all:
-	bats/bin/bats sign*bats
-	bats/bin/bats verify*bats
+	@rm -f src/*
+	@bats/bin/bats sign*bats
+	@bats/bin/bats verify*bats
 
 check:
 	bats/bin/bats test.bats

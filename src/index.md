@@ -11,7 +11,7 @@ hero:
     alt: Hands-on, Dyne.org style
   actions:
     - theme: brand
-      text: 💥 MLDSA (Post-Quantum)
+      text: MLDSA (Post-Quantum)
       link: /mldsa-w3c-vc
     - theme: alt
       text: ECDSA (P256)

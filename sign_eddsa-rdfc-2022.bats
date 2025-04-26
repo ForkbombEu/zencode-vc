@@ -60,8 +60,8 @@ EOF
 }
 EOF
   export contract=${algo}_rdf-canon-objects
-  prepare data $SRC/unsecuredDocument.data.json
-  prepare keys $SRC/${algo}_keyring.out.json
+  input data $SRC/unsecuredDocument.data.json
+  input keys $SRC/${algo}_keyring.out.json
   cat <<EOF > $SRC/${algo}_rdf-canon-objects.slang
 rule unknown ignore
 Given I have a 'string dictionary' named 'unsecuredDocument'
@@ -91,8 +91,8 @@ EOF
 
 @test "Create the signature" {
   export contract=${algo}_hash-and-sign
-  prepare data $SRC/${algo}_rdf-canon-objects.out.json
-  prepare keys $SRC/${algo}_keyring.out.json
+  input data $SRC/${algo}_rdf-canon-objects.out.json
+  input keys $SRC/${algo}_keyring.out.json
   cat <<EOF > $SRC/${algo}_hash-and-sign.slang
 Scenario eddsa
 Given I have a 'keyring'

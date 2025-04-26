@@ -25,8 +25,8 @@ setup() {
 
 @test "Prepare the document signature verification" {
   export contract=${algo}_prepare-verification-signed-doc
-  prepare data $SRC/${algo}_hash-and-sign.out.json
-  prepare keys $SRC/${algo}_keyring.out.json
+  input data $SRC/${algo}_hash-and-sign.out.json
+  input keys $SRC/${algo}_keyring.out.json
   cat <<EOF > $SRC/${contract}.slang
 Scenario eddsa
 Given I have a 'keyring'
@@ -56,8 +56,8 @@ EOF
 
 @test "Verify the signature" {
   export contract=${algo}_verify-prepared-signed-doc
-  prepare data $SRC/${algo}_prepare-verification-signed-doc.out.json
-  prepare keys /dev/null
+  input data $SRC/${algo}_prepare-verification-signed-doc.out.json
+  input keys /dev/null
   cat <<EOF > ${SRC}/${contract}.slang
 Scenario eddsa
 Given I have a 'base64' named 'document rdf-canon'

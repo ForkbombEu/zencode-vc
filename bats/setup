@@ -42,10 +42,14 @@ slexe() {
   }
   # run bats_pipe bash bin/slexfe -F $1 \| slangroom-exec
   >&3 echo " 🔥 `basename ${1}.slang`"
+  local start_time_s=$(date +%s)
+  local start_time_ns=$(date +%N)
   bash bin/slexfe -F $1 \
     | slangroom-exec \
         1>$TMP/out 2> >(tee $TMP/err | grep -v 'J64 ' >&2)
   local res=$?
+  local end_time_s=$(date +%s)
+  local end_time_ns=$(date +%N)
   export output=`cat $TMP/out`
   [ "$res" != 0 ] && {
     >&2 echo "TRACE:"
@@ -60,11 +64,52 @@ slexe() {
     _err "Output is missing, no result from previous computation" | tee -a $TMP/err
     exit 1
   }
+  # Avoid leading zero issues by normalizing inputs
+  start_time_s=$((10#$start_time_s))
+  start_time_ns=$((10#$start_time_ns))
+  end_time_s=$((10#$end_time_s))
+  end_time_ns=$((10#$end_time_ns))
+  # Convert and calculate elapsed time in milliseconds
+  local start_time_ms=$((start_time_s * 1000 + start_time_ns / 1000000))
+  local end_time_ms=$((end_time_s * 1000 + end_time_ns / 1000000))
+  local execution_time_ms=$((end_time_ms - start_time_ms))
   rm -f "${1}.out.json"
   echo "$output" > "${1}.out.json"
   >&3 echo " 💾 `basename ${1}.out.json`"
   >&3 echo ""
   set -e
+  if [ -L $1.data.json ]; then
+    idata=`readlink $1.data.json`
+    local size=$(stat --format="%s" "$idata") # Get file size in bytes
+    idata="`basename $idata`\n\n$size bytes"
+  else
+    idata="null\n\n0 bytes"
+  fi
+  if [ -L $1.keys.json ]; then
+    ikeys=`readlink $1.keys.json`
+    local size=$(stat --format="%s" "$ikeys") # Get file size in bytes
+    ikeys="`basename $ikeys`\n\n$size bytes"
+  else
+    ikeys="null\n\n0 bytes"
+  fi
+  # size_kilobytes=$(echo "scale=2; $size / 1024" | bc)
+  iout="`basename $1`\n\n$(stat --format="%s" "$1.out.json") bytes"
+cat <<EOF | dot -Tsvg -o ${1}.svg
+digraph G {
+    rankdir=LR;
+    node [shape=box, style=rounded, fontname="Arial", fontsize=12, color=black, fillcolor=lightgray, margin=0.2];
+    bgcolor=transparent;
+    edge [arrowsize=0.8];
+    Input1 [label="$idata"];
+    Input2 [label="$ikeys"];
+    Script [shape=ellipse, label="zencode_exec\n\ntime: $execution_time_ms ms"];
+    Output [label="$iout"];
+    Input1 -> Script;
+    Input2 -> Script;
+    Script -> Output;
+    edge [color=black, arrowsize=0.7];
+}
+EOF
 }
 
 save_output() {
@@ -78,7 +123,7 @@ save_output() {
   >&3 echo " 💾 > `basename $1`"
 }
 
-prepare() {
+input() {
   [ -r "$2" ] || {
     _err "Input file not found: $2" | tee -a $TMP/err
     exit 1

@@ -13,6 +13,7 @@ Conforming to:
 ## Generate keys
 
 <<< @/mldsa_keyring.slang{gherkin}
+![](mldsa_keyring.svg)
 
 ### Output
 
@@ -37,6 +38,7 @@ Results in both private and public keys, which can also be generated in two sepa
 ### Zencode
 
 <<< @/mldsa_rdf-canon-objects.slang{gherkin}
+![](mldsa_rdf-canon-objects.svg)
 
 ### Output
 
@@ -57,6 +59,7 @@ Results in seralized canonical RDF versions of the document and signature settin
 ### Zencode
 
 <<< @/mldsa_hash-and-sign.slang{gherkin}
+![](mldsa_hash-and-sign.svg)
 
 ### 💾 Output
 
@@ -73,6 +76,7 @@ Results in seralized canonical RDF versions of the document and signature settin
 ### Zencode
 
 <<< @/mldsa_prepare-verification-signed-doc.slang{gherkin}
+![](mldsa_prepare-verification-signed-doc.svg)
 
 ### Output
 
@@ -89,6 +93,7 @@ Results again in serialized canonical RDF version of the document and signature 
 ### Zencode
 
 <<< @/mldsa_verify-prepared-signed-doc.slang{gherkin}
+![](mldsa_verify-prepared-signed-doc.svg)
 
 ### Output
 

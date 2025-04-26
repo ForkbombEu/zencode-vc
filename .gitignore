@@ -1,6 +1,7 @@
 # bin/slexfe
 bin/slangroom-exec
 src/*.json
+src/*.svg
 *.orig
 *.rdf
 *.slang

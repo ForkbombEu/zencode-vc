@@ -30,17 +30,14 @@ slexe() {
   set +e
   [ -r bin/slexfe ] || {
     _err "Error: bin/slexfe not found." | tee -a $TMP/err
-    exit 1
-  }
+    exit 1  }
   command -v slangroom-exec > /dev/null || {
     _err "Error: slangroom-exec not found." | tee -a $TMP/err
-    exit 1
-  }
+    exit 1  }
   [ -r "${1}.slang" ] || {
     _err "Error: script not found: $1" | tee -a $TMP/err
-    exit 1
-  }
-  # run bats_pipe bash bin/slexfe -F $1 \| slangroom-exec
+    exit 1  }
+  # EXECUTION (timed)
   >&3 echo " 🔥 `basename ${1}.slang`"
   local start_time_s=$(date +%s)
   local start_time_ns=$(date +%N)
@@ -51,6 +48,7 @@ slexe() {
   local end_time_s=$(date +%s)
   local end_time_ns=$(date +%N)
   export output=`cat $TMP/out`
+  # analyze and print logs in case of error
   [ "$res" != 0 ] && {
     >&2 echo "TRACE:"
     awk '/J64 TRACE/ {print $3}' $TMP/err | \
@@ -58,13 +56,12 @@ slexe() {
     >&2 echo "HEAP:"
     awk '/J64 HEAP/ {print $3}' $TMP/err | \
       cut -d\" -f1 | base64 -d | jq .
-    exit 1
-  }
+    exit 1  }
   [ "$output" == "" ] && {
     _err "Output is missing, no result from previous computation" | tee -a $TMP/err
-    exit 1
-  }
-  # Avoid leading zero issues by normalizing inputs
+    exit 1  }
+  # Calculate execution timing:
+  # avoid leading zero issues in shell by normalizing inputs
   start_time_s=$((10#$start_time_s))
   start_time_ns=$((10#$start_time_ns))
   end_time_s=$((10#$end_time_s))
@@ -73,26 +70,27 @@ slexe() {
   local start_time_ms=$((start_time_s * 1000 + start_time_ns / 1000000))
   local end_time_ms=$((end_time_s * 1000 + end_time_ns / 1000000))
   local execution_time_ms=$((end_time_ms - start_time_ms))
+  # Write the output
   rm -f "${1}.out.json"
   echo "$output" > "${1}.out.json"
   >&3 echo " 💾 `basename ${1}.out.json`"
   >&3 echo ""
-  set -e
+  set -e # relax
+  # Generate execution graph
   if [ -L $1.data.json ]; then
     idata=`readlink $1.data.json`
     local size=$(stat --format="%s" "$idata") # Get file size in bytes
-    idata="`basename $idata`\n\n$size bytes"
+    idata="`basename $idata|cut -d. -f1`\n\n$size bytes"
   else
     idata="null\n\n0 bytes"
   fi
   if [ -L $1.keys.json ]; then
     ikeys=`readlink $1.keys.json`
     local size=$(stat --format="%s" "$ikeys") # Get file size in bytes
-    ikeys="`basename $ikeys`\n\n$size bytes"
+    ikeys="`basename $ikeys|cut -d. -f1`\n\n$size bytes"
   else
     ikeys="null\n\n0 bytes"
   fi
-  # size_kilobytes=$(echo "scale=2; $size / 1024" | bc)
   iout="`basename $1`\n\n$(stat --format="%s" "$1.out.json") bytes"
 cat <<EOF | dot -Tsvg -o ${1}.svg
 digraph G {
@@ -110,6 +108,7 @@ digraph G {
     edge [color=black, arrowsize=0.7];
 }
 EOF
+    # add entry to execution log
 }
 
 save_output() {

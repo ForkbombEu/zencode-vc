@@ -15,8 +15,9 @@ export default defineConfig({
       { text: 'Zenroom', link: 'https://zenroom.org' },
       { text: 'Zencode', link: 'https://dev.zenroom.org' },
       { text: 'Slangroom', link: 'https://dyne.org/slangroom' },
-    ],
+      { text: 'The Forkbomb Company', link: 'https://forkbomb.solutions' },
 
+    ],
     sidebar: [
       {
         text: 'Language bindings',
@@ -52,5 +53,11 @@ export default defineConfig({
       { icon: 'github', link: 'https://github.com/dyne/zencode-w3c-vc' },
       { icon: 'maildotru', link: 'mailto:info@forkbomb.eu' }
     ]
+  },
+  markdown: {
+    theme: {
+      light: "catppuccin-latte",
+      dark: "catppuccin-mocha",
+    }
   }
 })

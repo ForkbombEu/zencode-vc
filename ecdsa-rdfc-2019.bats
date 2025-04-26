@@ -41,6 +41,7 @@ EOF
 }
 
 @test "Create the rdf-canon objects" {
+  export contract=${algo}_rdf-canon-objects
   cat <<EOF > $SRC/unsecuredDocument.data.json
 {
   "unsecuredDocument": {
@@ -61,7 +62,6 @@ EOF
   }
 }
 EOF
-  export contract="ecdsa_rdf-canon-objects"
   input data $SRC/unsecuredDocument.data.json
   input keys $SRC/${algo}_keyring.out.json
   cat <<EOF > $SRC/${contract}.slang

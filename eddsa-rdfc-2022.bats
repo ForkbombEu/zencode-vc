@@ -28,7 +28,7 @@ setup_file() {
 }
 
 @test "Create the keyring and document" {
-  export contract=eddsa_keyring
+  export contract=${algo}_keyring
 cat <<EOF > $SRC/eddsa_keyring.keys.json
 { "w3c test key": "c96ef9ea10c5e414c471723aff9de72c35fa5b70fae97e8832ecac7d2e2b8ed6" }
 EOF

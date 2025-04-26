@@ -52,6 +52,7 @@ jobs:
         run: npm ci # or pnpm install / yarn install / bun install
       - name: Build with VitePress
         run: |
+          rm -f src/_exec_log.md
           npm run docs:build
           ls -l src
           ls -l .vitepress/dist

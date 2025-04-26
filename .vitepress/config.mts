@@ -19,12 +19,30 @@ export default defineConfig({
 
     sidebar: [
       {
-        text: 'Use in your app',
+        text: 'Language bindings',
         items: [
           { text: 'How to embed', link: 'https://dev.zenroom.org/#/pages/how-to-embed' },
           { text: 'Javascript', link: 'https://dev.zenroom.org/#/pages/javascript' },
           { text: 'Python', link: 'https://dev.zenroom.org/#/pages/python' },
-          { text: 'Java', link: 'https://dev.zenroom.org/#/pages/java' }
+          { text: 'Java', link: 'https://dev.zenroom.org/#/pages/java' },
+          { text: 'Golang', link: 'https://github.com/dyne/Zenroom/tree/master/bindings/golang/zenroom' },
+          { text: 'Zig', link: 'https://github.com/dyne/Zenroom/tree/master/bindings/zig' },
+          { text: 'Rust', link: 'https://github.com/dyne/Zenroom/tree/master/bindings/rust' }
+        ]
+      },
+      {
+        text: 'Integration guides',
+        items: [
+          { text: 'Node.js', link: 'https://dev.zenroom.org/#/pages/zenroom-javascript1b' },
+          { text: 'Browser', link: 'https://dev.zenroom.org/#/pages/zenroom-javascript2b' },
+          { text: 'React', link: 'https://dev.zenroom.org/#/pages/zenroom-javascript3' }
+        ]
+      },
+      {
+        text: 'Mobile native',
+        items: [
+          { text: 'Android', link: 'https://dev.zenroom.org/#/pages/zenroom-react-native?id=android-setup' },
+          { text: 'iOS', link: 'https://dev.zenroom.org/#/pages/zenroom-react-native?id=ios-setup' }
         ]
       }
     ],

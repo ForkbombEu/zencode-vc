@@ -30,13 +30,13 @@ slexe() {
   set +e
   [ -r bin/slexfe ] || {
     _err "Error: bin/slexfe not found." | tee -a $TMP/err
-    exit 1  }
+    exit 1;  }
   command -v slangroom-exec > /dev/null || {
     _err "Error: slangroom-exec not found." | tee -a $TMP/err
-    exit 1  }
+    exit 1;  }
   [ -r "${1}.slang" ] || {
     _err "Error: script not found: $1" | tee -a $TMP/err
-    exit 1  }
+    exit 1;  }
   # EXECUTION (timed)
   >&3 echo " 🔥 `basename ${1}.slang`"
   local start_time_s=$(date +%s)
@@ -56,10 +56,10 @@ slexe() {
     >&2 echo "HEAP:"
     awk '/J64 HEAP/ {print $3}' $TMP/err | \
       cut -d\" -f1 | base64 -d | jq .
-    exit 1  }
+    exit 1;  }
   [ "$output" == "" ] && {
     _err "Output is missing, no result from previous computation" | tee -a $TMP/err
-    exit 1  }
+    exit 1;  }
   # Calculate execution timing:
   # avoid leading zero issues in shell by normalizing inputs
   start_time_s=$((10#$start_time_s))
@@ -92,7 +92,7 @@ slexe() {
     ikeys="null\n\n0 bytes"
   fi
   iout="`basename $1`\n\n$(stat --format="%s" "$1.out.json") bytes"
-cat <<EOF | dot -Tsvg -o ${1}.svg
+  cat <<EOF | dot -Tsvg -o ${1}.svg
 digraph G {
     rankdir=LR;
     node [shape=box, style=rounded, fontname="Arial", fontsize=12, color=black, fillcolor=lightgray, margin=0.2];
@@ -108,7 +108,7 @@ digraph G {
     edge [color=black, arrowsize=0.7];
 }
 EOF
-    # add entry to execution log
+  execlog $1
 }
 
 save_output() {
@@ -136,4 +136,56 @@ input() {
   rm -f "${SRC}/${contract}.${ft}.json"
   ln -s "$2" "${SRC}/${contract}.${ft}.json"
   >&3 echo " 🔌 $ft `basename $2`"
+}
+
+execlog() {
+  # add entry to execution log
+  local input_found=0
+  local out="${SRC}/${algo}_exec_log.md"
+  input_temp=`mktemp`
+  echo "## ${contract}" >> "$out"
+  cat <<EOF >> $input_temp
+
+### Input
+EOF
+  local idata_file
+  if [ -L $1.data.json ]; then
+    idata_file=`readlink $1.data.json`
+    if [ -r $idata_file ] && [ "$idata_file" != "/dev/null" ]; then
+      idata="`basename $idata_file|cut -d. -f1`"
+      input_found=1
+      cat <<EOF >> $input_temp
+$idata
+
+<<< @/$contract.data.json
+
+EOF
+    fi
+  fi
+  local ikeys_file
+  if [ -L $1.keys.json ]; then
+    ikeys_file=`readlink $1.keys.json`
+    if [ -r $ikeys_file ] && [ "$ikeys_file" != "/dev/null" ]; then
+      ikeys="`basename $ikeys_file|cut -d. -f1`"
+      input_found=1
+      cat <<EOF >> $input_temp
+$ikeys
+
+<<< @/$contract.keys.json
+
+EOF
+    fi
+  fi
+  if [ $input_found == 1 ]; then cat $input_temp >> $out; fi
+  rm -f $input_temp
+
+  cat <<EOF >> $out
+### Zencode
+<<< @/${contract}.slang{gherkin}
+![]($contract.svg)
+
+### Output
+<<< @/${contract}.out.json
+
+EOF
 }

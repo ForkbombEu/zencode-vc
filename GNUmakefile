@@ -2,8 +2,9 @@
 
 all:
 	@rm -f src/*.json src/*.slang
-	@bats/bin/bats sign*bats
-	@bats/bin/bats verify*bats
+	@bats/bin/bats mldsa-rdfc-2025.bats
+	@bats/bin/bats eddsa-rdfc-2022.bats
+	@bats/bin/bats ecdsa-rdfc-2019.bats
 
 check:
 	bats/bin/bats test.bats

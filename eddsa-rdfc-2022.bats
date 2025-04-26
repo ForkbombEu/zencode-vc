@@ -20,10 +20,15 @@
 
 setup() {
   load bats/setup
-  algo=eddsa
+}
+
+setup_file() {
+  export algo=eddsa
+  rm -f src/${algo}_exec_log.md
 }
 
 @test "Create the keyring and document" {
+  export contract=eddsa_keyring
 cat <<EOF > $SRC/eddsa_keyring.keys.json
 { "w3c test key": "c96ef9ea10c5e414c471723aff9de72c35fa5b70fae97e8832ecac7d2e2b8ed6" }
 EOF
@@ -140,4 +145,62 @@ and I move 'proof' in 'document'
 Then print 'document' as 'string'
 EOF
   slexe  $SRC/${algo}_hash-and-sign
+}
+
+
+@test "Prepare the document signature verification" {
+  export contract=${algo}_prepare-verification-signed-doc
+  input data $SRC/${algo}_hash-and-sign.out.json
+  input keys $SRC/${algo}_keyring.out.json
+  cat <<EOF > $SRC/${contract}.slang
+Scenario eddsa
+Given I have a 'keyring'
+and I have a 'dictionary' named 'document'
+and I have a 'eddsa signature' part of path 'document.proof.proofValue' after string prefix 'z'
+and I have a 'dictionary' in path 'document.proof'
+
+When I rename 'proofValue' to 'eddsa signature'
+and I remove 'proofValue' from 'proof'
+and I remove 'proof' from 'document'
+and I create copy of '@context' from 'document'
+and I rename 'copy' to '@context'
+and I move '@context' in 'proof'
+and I create the eddsa public key
+
+Then print the 'eddsa signature'
+and print the 'proof'
+and print the 'document'
+and print the 'eddsa public key'
+
+Compute 'proof rdf-canon': generate serialized canonical rdf with dictionary 'proof'
+Compute 'document rdf-canon': generate serialized canonical rdf with dictionary 'document'
+EOF
+  slexe $SRC/${contract}
+#  cat $TMP/out | >&3 jq .
+}
+
+@test "Verify the signature" {
+  export contract=${algo}_verify-prepared-signed-doc
+  input data $SRC/${algo}_prepare-verification-signed-doc.out.json
+  input keys /dev/null
+  cat <<EOF > ${SRC}/${contract}.slang
+Scenario eddsa
+Given I have a 'base64' named 'document rdf-canon'
+and I have a 'base64' named 'proof rdf-canon'
+and I have a 'eddsa public key'
+and I have a 'eddsa signature'
+
+When I create the hash of 'proof rdf-canon'
+and rename 'hash' to 'proof hash'
+and I create the hash of 'document rdf-canon'
+and rename 'hash' to 'document hash'
+and I append 'document hash' to 'proof hash'
+
+When I verify 'proof hash' has a eddsa signature in 'eddsa signature' by 'eddsa public key'
+
+Then print the string 'VALID DOC PROOF'
+EOF
+  slexe ${SRC}/${contract}
+  cat $TMP/out | >&3 jq .
+
 }

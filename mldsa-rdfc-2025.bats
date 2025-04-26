@@ -17,9 +17,13 @@
 
 # A.1 Representation: mldsa-rdfc-2025, with fips203 (dilithium2)
 
-setup() {
+function setup() {
   load bats/setup
-  algo=mldsa
+}
+
+function setup_file() {
+  export algo=mldsa
+  rm -f src/${algo}_exec_log.md
 }
 
 @test "Create the keyring and document" {
@@ -121,4 +125,63 @@ Then print 'document' as 'string'
 EOF
   slexe  $SRC/${contract}
   # cat $SRC/${contract}.out.json | >&3 jq .
+}
+
+
+@test "Prepare the document signature verification" {
+  export contract=${algo}_prepare-verification-signed-doc
+  input data $SRC/${algo}_hash-and-sign.out.json
+  input keys $SRC/${algo}_keyring.out.json
+  cat <<EOF > $SRC/${contract}.slang
+rule output encoding base64
+Scenario qp
+Given I have a 'keyring'
+and I have a 'dictionary' named 'document'
+and I have a 'base58' part of path 'document.proof.proofValue' after string prefix 'z'
+and I have a 'dictionary' in path 'document.proof'
+
+When I rename 'proofValue' to 'mldsa44 signature'
+and I remove 'proofValue' from 'proof'
+and I remove 'proof' from 'document'
+and I create copy of '@context' from 'document'
+and I rename 'copy' to '@context'
+and I move '@context' in 'proof'
+and I create the mldsa44 public key
+
+Then print the 'mldsa44 signature' as 'base64'
+and print the 'proof'
+and print the 'document'
+and print the 'mldsa44 public key'
+
+Compute 'proof rdf-canon': generate serialized canonical rdf with dictionary 'proof'
+Compute 'document rdf-canon': generate serialized canonical rdf with dictionary 'document'
+EOF
+  slexe $SRC/${contract}
+#  cat $TMP/out | >&3 jq .
+}
+
+@test "Verify the signature" {
+  export contract=${algo}_verify-prepared-signed-doc
+  input data $SRC/${algo}_prepare-verification-signed-doc.out.json
+  input keys /dev/null
+  cat <<EOF > ${SRC}/${contract}.slang
+Scenario qp
+Given I have a 'base64' named 'document rdf-canon'
+and I have a 'base64' named 'proof rdf-canon'
+and I have a 'mldsa44 public key'
+and I have a 'mldsa44 signature'
+
+When I create the hash of 'proof rdf-canon'
+and rename 'hash' to 'proof hash'
+and I create the hash of 'document rdf-canon'
+and rename 'hash' to 'document hash'
+and I append 'document hash' to 'proof hash'
+
+When I verify 'proof hash' has a mldsa44 signature in 'mldsa44 signature' by 'mldsa44 public key'
+
+Then print the string 'VALID DOC PROOF'
+EOF
+  slexe ${SRC}/${contract}
+  cat $TMP/out | >&3 jq .
+
 }

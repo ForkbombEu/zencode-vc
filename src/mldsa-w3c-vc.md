@@ -4,6 +4,11 @@ title: Post Quantum verifiable credentials
 
 # {{ $frontmatter.title }}
 
+Conforming to:
+- [Verifiable Credentials Data Model v2.0](https://www.w3.org/TR/vc-data-model-2.0/)
+- [Verifiable Credential Data Integrity v1.0](https://www.w3.org/TR/vc-data-integrity/)
+- [Quantum-Safe Cryptosuites v0.3](https://w3c-ccg.github.io/di-quantum-safe/)
+
 ## Generate keys
 
 <<< @/mldsa_keyring.slang{gherkin}
@@ -13,6 +18,8 @@ title: Post Quantum verifiable credentials
 💾 mldsa_keyring
 
 <<< @/mldsa_keyring.out.json{json}
+
+Results in both private and public keys, which can also be generated in two separate steps and should be stored consciously. The public key may be registered as a DID.
 
 ## Prepare for signature
 
@@ -35,6 +42,8 @@ title: Post Quantum verifiable credentials
 💾 mldsa_rdf-canon-objects
 
 <<< @/mldsa_rdf-canon-objects.out.json
+
+Results in seralized canonical RDF versions of the document and signature settings ready for signature, conforming to [RDF Dataset Canonicalization](https://www.w3.org/TR/rdf-canon/).
 
 ## Sign the credentials
 
@@ -67,6 +76,8 @@ title: Post Quantum verifiable credentials
 ### Output
 
 <<< @/mldsa_prepare-verification-signed-doc.out.json
+
+Results again in serialized canonical RDF version of the document and signature settings. Public key may be retrieved from DID.
 
 ## Verify the signature
 

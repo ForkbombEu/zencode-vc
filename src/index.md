@@ -3,12 +3,12 @@
 layout: home
 
 hero:
-  name: "Zencode VC journey"
-  text: "Verifiable credentials for your applications"
-  tagline: 'Easy, secure, interoperable'
+  name: "Zencode dev journey"
+  text: "Verifiable credentials for wallet and issuer"
+  tagline: 'Easy, secure, interoperable and cross-country.'
   image:
     src: https://dyne.org/images/logos/black-transparent-Icon.svg
-    alt: Quick hands-on guide
+    alt: Hands-on, Dyne.org style
   actions:
     - theme: brand
       text: 💥 MLDSA (Post-Quantum)
@@ -22,9 +22,11 @@ hero:
 
 features:
   - title: 👟 No-code
-    details: 'Human-like language, easy to review and customize'
+    details: 'Human-like language, easy to embed, customize and review'
   - title: 🚀 Cross-platform
-    details: 'Works everywhere: WASM, ESP32 chips, RISC-V, Windows, Apple, GNU+Linux, BSD'
+    details: 'Works on WASM, ESP32, RISC-V, Win, Apple, Android, iOS'
   - title: 🤝 End-to-end
-    details: 'Fully end-to-end crypto connecting mobile wallets to servers'
+    details: 'Encryption between peers, private keys are never shared'
+  - title: 🛡️ Compliant
+    details: 'Following world-class standards and high ambitions in security'
 ---

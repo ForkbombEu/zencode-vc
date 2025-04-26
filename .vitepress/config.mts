@@ -2,12 +2,16 @@ import { defineConfig } from 'vitepress'
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-  title: "Verifiable credentials in Zencode",
-  description: "Simple implementation guide for W3C verifiable credentials using Zencode: easy, secure and interoperable.",
+  title: "Zencode VCs",
+  description: "Simple implementation guide for verifiable credentials using Zencode: easy, secure, interoperable and cross-country.",
   base: "/zencode-w3c-vc/",
   srcDir: "./src",
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
+    footer: {
+     message: 'Funded by Horizon Europe - NGI <a href="https://ngisargasso.eu/">Sargasso</a> - GA nr. <a href="https://cordis.europa.eu/project/id/101092887">101092887</a>',
+     copyright: 'Copyright (C) 2025 <a href="https://forkbomb.solutions">Forkbomb BV</a> - GNU GPL License'
+    },
     nav: [
       { text: 'Home', link: '/' },
       { text: 'DIDRoom', link: 'https://didroom.com' },
@@ -47,7 +51,6 @@ export default defineConfig({
         ]
       }
     ],
-
     socialLinks: [
       { icon: 'linkedin', link: 'https://linkedin.com/company/forkbomb' },
       { icon: 'github', link: 'https://github.com/dyne/zencode-w3c-vc' },

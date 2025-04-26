@@ -2,8 +2,8 @@ import { defineConfig } from 'vitepress'
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-  title: "Zencode W3C VC",
-  description: "Dyne.org W3C VC based on W3C standard and implemented using Zencode.",
+  title: "Verifiable credentials in Zencode",
+  description: "Simple implementation guide for W3C verifiable credentials using Zencode: easy, secure and interoperable.",
   base: "/zencode-w3c-vc/",
   srcDir: "./src",
   themeConfig: {

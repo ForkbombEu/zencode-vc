@@ -3,9 +3,12 @@
 layout: home
 
 hero:
-  name: "Zencode W3C VC"
+  name: "Zencode VC journey"
   text: "Verifiable credentials for your applications"
   tagline: 'Easy, secure, interoperable'
+  image:
+    src: https://dyne.org/images/logos/black-transparent-Icon.svg
+    alt: Quick hands-on guide
   actions:
     - theme: brand
       text: 💥 MLDSA (Post-Quantum)

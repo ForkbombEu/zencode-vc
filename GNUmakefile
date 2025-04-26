@@ -18,3 +18,7 @@ deps:
 
 docs:
 	@npm run docs:build
+
+clean:
+	@rm -f src/*exec_log.md
+	@rm -f src/*json src/*svg src/*slang

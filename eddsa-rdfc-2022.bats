@@ -71,10 +71,8 @@ EOF
 rule unknown ignore
 Given I have a 'string dictionary' named 'unsecuredDocument'
 and I have a 'keyring'
-When I create copy of '@context' from 'unsecuredDocument'
-and I rename 'copy' to '@context'
-and I create the 'string dictionary' named 'proofConfig'
-and I move '@context' in 'proofConfig'
+When I create the 'string dictionary' named 'proofConfig'
+and I copy '@context' from 'unsecuredDocument' in 'proofConfig'
 and I write string 'DataIntegrityProof' in 'type'
 and I move 'type' in 'proofConfig'
 and I write string 'did:key:z6MkrJVnaZkeFzdQyMZu1cgjg7k1pZZ6pvBQ7XJPt4swbTQ2#z6MkrJVnaZkeFzdQyMZu1cgjg7k1pZZ6pvBQ7XJPt4swbTQ2' in 'verificationMethod'
@@ -162,9 +160,7 @@ and I have a 'dictionary' in path 'document.proof'
 When I rename 'proofValue' to 'eddsa signature'
 and I remove 'proofValue' from 'proof'
 and I remove 'proof' from 'document'
-and I create copy of '@context' from 'document'
-and I rename 'copy' to '@context'
-and I move '@context' in 'proof'
+and I copy '@context' from 'document' in 'proof'
 and I create the eddsa public key
 
 Then print the 'eddsa signature'

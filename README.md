@@ -7,7 +7,7 @@ Journey made with [Zencode](https://dev.zenroom.org) using [Zenroom](https://zen
 ### with mise-en-place
 ```
 mise install
-mise use slangroom-exec
+mise use "aqua:dyne/slangroom-exec"
 eval `mise env`
 ln -s `which slangroom-exec` bin/slangroom-exec
 ```

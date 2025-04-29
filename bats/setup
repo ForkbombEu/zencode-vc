@@ -72,7 +72,7 @@ slexe() {
   local execution_time_ms=$((end_time_ms - start_time_ms))
   # Write the output
   rm -f "${1}.out.json"
-  echo "$output" > "${1}.out.json"
+  echo "$output" | jq . > "${1}.out.json"
   >&3 echo " 💾 `basename ${1}.out.json`"
   >&3 echo ""
   set -e # relax

@@ -4,7 +4,7 @@ import { defineConfig } from 'vitepress'
 export default defineConfig({
   title: "Zencode VCs",
   description: "Simple implementation guide for verifiable credentials using Zencode: easy, secure, interoperable and cross-country.",
-  base: "/zencode-w3c-vc/",
+  base: "/zencode-vc/",
   srcDir: "./src",
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config

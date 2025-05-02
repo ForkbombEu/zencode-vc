@@ -37,6 +37,7 @@ Then I print the keyring
 and I print the 'mldsa44 public key'
 EOF
   slexe $SRC/${contract}
+  describe out keyring
 }
 
 @test "Create the rdf-canon objects" {
@@ -63,6 +64,8 @@ EOF
   export contract="${algo}_rdf-canon-objects"
   input data $SRC/unsecuredDocument.data.json
   input keys $SRC/${algo}_keyring.out.json
+  describe data unsecuredDocument
+  describe keys mldsa44_public_key
   cat <<EOF > $SRC/${contract}.slang
 rule unknown ignore
 Given I have a 'string dictionary' named 'unsecuredDocument'
@@ -86,12 +89,15 @@ Compute 'proofConfig rdf-canon': generate serialized canonical rdf with dictiona
 Compute 'document rdf-canon': generate serialized canonical rdf with dictionary 'document'
 EOF
   slexe $SRC/${contract}
+  describe out proofConfig_rdf-canon document_rdf-canon
 }
 
 @test "Create the signature" {
   export contract=${algo}_hash-and-sign
   input data $SRC/${algo}_rdf-canon-objects.out.json
   input keys $SRC/${algo}_keyring.out.json
+  describe data proofConfig_rdf-canon document_rdf-canon
+  describe keys keyring
   cat <<EOF > $SRC/${contract}.slang
 Scenario qp
 Given I have a 'keyring'
@@ -122,6 +128,7 @@ Then print 'document' as 'string'
 
 EOF
   slexe  $SRC/${contract}
+  describe out document
   # cat $SRC/${contract}.out.json | >&3 jq .
 }
 
@@ -130,6 +137,8 @@ EOF
   export contract=${algo}_prepare-verification-signed-doc
   input data $SRC/${algo}_hash-and-sign.out.json
   input keys $SRC/${algo}_keyring.out.json
+  describe data document
+  describe keys mldsa44_public_key
   cat <<EOF > $SRC/${contract}.slang
 rule output encoding base64
 Scenario qp
@@ -153,6 +162,7 @@ Compute 'proof rdf-canon': generate serialized canonical rdf with dictionary 'pr
 Compute 'document rdf-canon': generate serialized canonical rdf with dictionary 'document'
 EOF
   slexe $SRC/${contract}
+  describe out proof_rdf-canon document_rdf-canon
 #  cat $TMP/out | >&3 jq .
 }
 
@@ -160,6 +170,7 @@ EOF
   export contract=${algo}_verify-prepared-signed-doc
   input data $SRC/${algo}_prepare-verification-signed-doc.out.json
   input keys /dev/null
+  describe data proof_rdf-canon document_rdf-canon mldsa44_public_key
   cat <<EOF > ${SRC}/${contract}.slang
 Scenario qp
 Given I have a 'base64' named 'document rdf-canon'
@@ -178,6 +189,7 @@ When I verify 'proof hash' has a mldsa44 signature in 'mldsa44 signature' by 'ml
 Then print the string 'VALID DOC PROOF'
 EOF
   slexe ${SRC}/${contract}
+  describe out output
   cat $TMP/out | >&3 jq .
 
 }

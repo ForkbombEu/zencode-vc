@@ -31,10 +31,8 @@ function _err() { >&2 printf "$*\n" | tee -a $TMP/err; }
 
 slexe() {
   set +e
-  [ "$contract" == "" ] && {
-    _err "Error: \$contract not set"
-    exit 1; }
-  slang="${SRC}/${contract}"
+  local slang="${SRC}/${contract}"
+  [ "$1" == "" ] || slang="$1"
   [ -r "${slang}.slang" ] || {
     _err "Error: script not found: $slang"
     exit 1;  }

@@ -29,15 +29,20 @@ load bats/test_helper/bats_file/load
 function _out() {     printf "$*\n"; }
 function _err() { >&2 printf "$*\n" | tee -a $TMP/err; }
 
+slang() {
+  tee $SRC/${step}_${algo}.slang
+}
+
 slexe() {
   set +e
+  local contract=${step}_${algo}
   local slang="${SRC}/${contract}"
   [ "$1" == "" ] || slang="$1"
   [ -r "${slang}.slang" ] || {
     _err "Error: script not found: $slang"
     exit 1;  }
   # EXECUTION (timed)
-  >&3 echo " 🔥 `basename ${1}.slang`"
+  >&3 echo " 🔥 `basename ${slang}.slang`"
   local start_time_s=$(date +%s)
   local start_time_ns=$(date +%N)
   bash bin/slexfe -F $slang \
@@ -70,20 +75,20 @@ slexe() {
   local end_time_ms=$((end_time_s * 1000 + end_time_ns / 1000000))
   local execution_time_ms=$((end_time_ms - start_time_ms))
   # Write the output
-  rm -f "${1}.out.json"
-  echo "$output" | jq . > "${1}.out.json"
-  >&3 echo " 💾 `basename ${1}.out.json`"
+  rm -f "${slang}.out.json"
+  echo "$output" | jq . > "${slang}.out.json"
+  >&3 echo " 💾 `basename ${slang}.out.json`"
   >&3 echo ""
   set -e # relax
   # Generate execution graph
-  if [ -L $slang.data.json ]; then
+  if [ -L ${slang}.data.json ]; then
     idata=`readlink $slang.data.json`
     local size=$(stat --format="%s" "$idata") # Get file size in bytes
     idata="`basename $idata|cut -d. -f1`\n\n$size bytes"
   else
     idata="null\n\n0 bytes"
   fi
-  if [ -L $slang.keys.json ]; then
+  if [ -L ${slang}.keys.json ]; then
     ikeys=`readlink $slang.keys.json`
     local size=$(stat --format="%s" "$ikeys") # Get file size in bytes
     ikeys="`basename $ikeys|cut -d. -f1`\n\n$size bytes"
@@ -91,7 +96,7 @@ slexe() {
     ikeys="null\n\n0 bytes"
   fi
   iout="`basename $slang`\n\n$(stat --format="%s" "$slang.out.json") bytes"
-  cat <<EOF | dot -Tsvg -o ${1}.svg
+  cat <<EOF | dot -Tsvg -o ${slang}.svg
 digraph G {
     rankdir=LR;
     node [shape=box, style=rounded, fontname="Arial", fontsize=12, color=black, fillcolor=lightgray, margin=0.2];
@@ -114,6 +119,7 @@ execlog() {
   # add entry to execution log
   local input_found=0
   local out="${SRC}/${algo}_exec_log.md"
+  local contract=`basename ${1}`
   input_temp=`mktemp`
   echo "## ${contract}" >> "$out"
   cat <<EOF >> $input_temp
@@ -129,21 +135,21 @@ EOF
       cat <<EOF >> $input_temp
 $idata
 
-<<< @/$contract.data.desc.json
+<<< @/${contract}.data.desc.json
 
 EOF
     fi
   fi
   local ikeys_file
-  if [ -L $1.keys.json ]; then
-    ikeys_file=`readlink $1.keys.json`
+  if [ -L ${SRC}/${contract}.keys.json ]; then
+    ikeys_file=`readlink ${SRC}/${contract}.keys.json`
     if [ -r $ikeys_file ] && [ "$ikeys_file" != "/dev/null" ]; then
       ikeys="`basename $ikeys_file|cut -d. -f1`"
       input_found=1
       cat <<EOF >> $input_temp
 $ikeys
 
-<<< @/$contract.keys.desc.json
+<<< @/${contract}.keys.desc.json
 
 EOF
     fi
@@ -163,6 +169,7 @@ EOF
 }
 
 describe() {
+  local contract=${step}_${algo}
   local base="${SRC}/$contract"
   target=$1
   [ "$target" == "" ] && {
@@ -184,26 +191,12 @@ EOF
   zenroom -z $ztmp -a "$base.$target.json" | jq . > $base.$target.desc.json
 }
 
-save_output() {
-  filename="$1"
-  [ "$output" == "" ] && {
-    _err "Output is missing, no result from previous computation"
-    exit 1
-  }
-  rm -f "${1}"
-  echo "$output" > "${1}"
-  >&3 echo " 💾 > `basename $1`"
-}
-
 input() {
   [ -r "$2" ] || {
     _err "Input file not found: $2"
     exit 1
   }
-  [ "$contract" == "" ] && {
-    _err "Prepare error: contract unknown"
-    exit 1
-  }
+  local contract=${step}_${algo}
   local ft="data"
   [ "$1" == "" ] || ft="$1"
   rm -f "${SRC}/${contract}.${ft}.json"

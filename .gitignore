@@ -3,6 +3,8 @@ bin/slangroom-exec
 src/*.json
 src/*.svg
 src/*exec_log.md
+test/*.json
+test/*.svg
 *.orig
 *.rdf
 *.slang

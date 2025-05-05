@@ -175,7 +175,7 @@ describe() {
   touch $ztmp
   for i in $*; do
     cat <<EOF >> $ztmp
-Given I have a 'dictionary' named '$i'
+Given I have '$i'
 EOF
   done
   for i in $*; do

@@ -16,6 +16,9 @@ deps:
 	@npm i
 	@eval `mise env`
 
+dev:
+	@npm run docs:dev
+
 docs:
 	@npm run docs:build
 

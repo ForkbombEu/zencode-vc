@@ -40,13 +40,13 @@ To be able to run these tests you need the following dependencies to be availabl
 * slangroom-exec@^1.6.13
 * zenroom@^5.19.1
 
-We handle these deps with [mise](https://mise.jdx.dev/getting-started.html#installing-mise-cli) and simply install them with
+> [!IMPORTANT]
+> If you have [mise](https://mise.jdx.dev/getting-started.html#installing-mise-cli) installed, all the dependencies can be installed with:
+> 	```sh
+>	make deps
+>	```
 
-```sh
-make deps
-```
-
-without it you can still run zencode-vc, but you have to install the dependencies by hand:
+without [mise](https://mise.jdx.dev/getting-started.html#installing-mise-cli) you can still run zencode-vc, but you have to install the dependencies manually:
 * node: follow the steps on [nodejs.org](https://nodejs.org/en/download)
 * slangroom-exec
 	```sh

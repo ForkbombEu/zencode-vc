@@ -177,7 +177,7 @@ Scenario ${zencode_scenario}
 Given I have a 'base64' named 'document rdf-canon'
 and I have a 'base64' named 'proof rdf-canon'
 and I have a '${zencode_algo} public key'
-and I have a '${zencode_algo} signature'
+and I have a 'base64' named '${zencode_algo} signature'
 
 When I create the hash of 'proof rdf-canon'
 and rename 'hash' to 'proof hash'

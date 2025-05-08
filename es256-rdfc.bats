@@ -15,8 +15,6 @@
 # You should have received a copy of the GNU Public License along with
 # this source code; if not, , see <https://www.gnu.org/licenses/>.
 
-# A.1 Representation: mldsa-rdfc-2025, with fips203 (dilithium2)
-
 function setup() {
   load bats/setup
   export contract=${step}_${algo}
@@ -179,7 +177,7 @@ Scenario es256
 Given I have a 'base64' named 'document rdf-canon'
 and I have a 'base64' named 'proof rdf-canon'
 and I have a 'es256 public key'
-and I have a 'es256 signature'
+and I have a 'base64' named 'es256 signature'
 
 When I create the hash of 'proof rdf-canon'
 and rename 'hash' to 'proof hash'
@@ -194,5 +192,4 @@ EOF
   slexe
   describe out output
   cat $TMP/out | >&3 jq .
-
 }

@@ -15,8 +15,6 @@
 # You should have received a copy of the GNU Public License along with
 # this source code; if not, , see <https://www.gnu.org/licenses/>.
 
-# A.1 Representation: mldsa-rdfc-2025, with fips203 (dilithium2)
-
 function setup() {
   load bats/setup
   export contract=${step}_${algo}
@@ -194,5 +192,4 @@ EOF
   slexe
   describe out output
   cat $TMP/out | >&3 jq .
-
 }

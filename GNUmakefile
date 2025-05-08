@@ -26,8 +26,7 @@ check:
 
 deps:
 	@mise self-update
-	@mise install aqua:dyne/slangroom-exec@latest
-	@mise use aqua:dyne/slangroom-exec@latest
+	@mise install
 	@npm i
 	@eval `mise env`
 

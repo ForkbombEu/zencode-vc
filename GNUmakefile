@@ -27,14 +27,16 @@ check:
 deps:
 	@mise self-update
 	@mise install
-	@npm i
 	@eval `mise env`
 
 dev:
-	@npm run docs:dev
+	@npm i && npm run docs:dev
 
 docs:
-	@npm run docs:build
+	@npm i && npm run docs:build
+
+preview: docs
+	@npm run docs:preview
 
 clean:
 	@rm -f src/*exec_log.md

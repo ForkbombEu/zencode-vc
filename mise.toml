@@ -1,4 +1,4 @@
 [tools]
-"aqua:dyne/slangroom-exec" = "1.6.24"
-"aqua:dyne/zenroom" = "5.22.0"
+"aqua:dyne/slangroom-exec" = "1.6.26"
+"aqua:dyne/zenroom" = "5.24.10"
 node = "22"
